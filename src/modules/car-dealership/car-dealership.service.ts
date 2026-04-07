@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Player, PlayerDocument } from '../../models/player.schema';
+import { OwnedCar, Player, PlayerDocument } from '../../models/player.schema';
 import { Car } from '../../models/car.schema';
 import { Part } from '../../models/part.schema';
 
@@ -85,7 +85,7 @@ export class CarDealershipService {
 
     const ownedCarId = new Types.ObjectId();
 
-    const ownedCar = {
+    const ownedCar: OwnedCar = {
       _id: ownedCarId,
       carRef: car._id,
       power: car.basePower,

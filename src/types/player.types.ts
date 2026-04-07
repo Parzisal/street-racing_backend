@@ -32,7 +32,7 @@ export type PlayerPartDto = {
 export type PlayerCarDto = {
   carId: string;
   name: string;
-  basePower: number;
+  //   basePower: number;
   currentPower: number;
   rating: number;
   imageUrl: string;

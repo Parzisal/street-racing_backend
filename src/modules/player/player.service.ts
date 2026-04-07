@@ -48,9 +48,9 @@ export class PlayerService {
       ({ carRef, power, sellPrice, parts }) => ({
         carId: carRef._id.toString(),
         name: carRef.name,
-        basePower: carRef.basePower,
+        // basePower: carRef.basePower,
         currentPower: power,
-        rating: carRef.rating,
+        rating: 4, // нужен алгоритм подсчета рейтинга тачки (кол-во побед, кол-во гонок, мощность и тд)
         imageUrl: carRef.imageUrl,
         thumbnailUrl: carRef.thumbnailUrl,
         sellPrice,
