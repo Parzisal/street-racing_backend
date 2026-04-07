@@ -1,18 +1,4 @@
-import { Types } from 'mongoose';
-
-export type OwnedCarPart = {
-  part: Types.ObjectId;
-  level: number;
-};
-
-export type OwnedCar = {
-  car: Types.ObjectId;
-  power: number;
-  sellPrice: number;
-  parts: OwnedCarPart[];
-};
-
-export interface PlayerStats {
+interface PlayerStats {
   totalRaces: number;
   wins: number;
   losses: number;
@@ -32,7 +18,6 @@ export type PlayerPartDto = {
 export type PlayerCarDto = {
   carId: string;
   name: string;
-  //   basePower: number;
   currentPower: number;
   rating: number;
   imageUrl: string;
@@ -56,13 +41,13 @@ export type PlayerGetDto = {
   ownedCars: PlayerCarDto[];
 };
 
-export interface FuelData {
+interface FuelData {
   current: number;
   max: number;
   lastRefill: Date;
 }
 
-export interface RecentChallenge {
+interface RecentChallenge {
   challengerId: string;
   raceId: string;
   date: Date;

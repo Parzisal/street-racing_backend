@@ -13,12 +13,12 @@ export class PartsService {
 
   /**
    * Улучшение запчасти на конкретной машине игрока
-   * @param playerId ID игрока
+   * @param userId ID пользователя
    * @param carId ID машины (ObjectId)
    * @param partId ID запчасти (ObjectId)
    */
-  async upgradePart(playerId: string, carId: string, partId: string) {
-    const player = await this.playerModel.findById(playerId);
+  async upgradePart(userId: string, carId: string, partId: string) {
+    const player = await this.playerModel.findOne({ userId }).exec();
     if (!player) throw new BadRequestException('Игрок не найден');
 
     // Находим машину по carId

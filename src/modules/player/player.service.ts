@@ -3,9 +3,49 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Types, type Model } from 'mongoose';
 import { Car } from 'src/models/car.schema';
 import { Part } from 'src/models/part.schema';
-import { Player, PlayerDocument } from '../../models/player.schema';
-import type { PlayerCarDto, PlayerGetDto } from '../../types/player.types';
-import type { PlayerLean } from '../../types/player-db.types';
+import { OwnedCar, Player, PlayerDocument } from '../../models/player.schema';
+import type { PlayerGetDto } from '../../types/player.types';
+import { mapOwnedCarsToDto } from './player-owned-cars.mapper';
+
+type PlayerLeanDoc = {
+  userId: string;
+  username: string;
+  level: number;
+  experience: number;
+  silver: number;
+  gold: number;
+  fuel: {
+    current: number;
+    max: number;
+    lastRefill: Date;
+  };
+  garageSlots: number;
+  selectedCarId: Types.ObjectId | null;
+  stats: {
+    totalRaces: number;
+    wins: number;
+    losses: number;
+    spentMoney: number;
+    earnedMoney: number;
+    racesForLevel: number;
+    challengesReceived: number;
+  };
+  recentChallenges: Array<{
+    challengerId: Types.ObjectId;
+    raceId: Types.ObjectId;
+    date: Date;
+  }>;
+  ownedCars: Array<{
+    _id: Types.ObjectId;
+    carRef: Types.ObjectId;
+    power: number;
+    sellPrice: number;
+    parts: Array<{
+      partRef: Types.ObjectId;
+      level: number;
+    }>;
+  }>;
+};
 
 @Injectable()
 export class PlayerService {
@@ -18,55 +58,40 @@ export class PlayerService {
     private readonly partModel: Model<Part>,
   ) {}
 
-  async getPlayer(playerId: string): Promise<PlayerGetDto> {
-    const existing = await this.playerModel.findOne({ userId: playerId });
-
+  async getPlayer(userId: string): Promise<PlayerGetDto> {
+    const existing = await this.playerModel.exists({ userId });
     if (!existing) {
-      await this.createDefaultPlayer(playerId);
+      await this.createDefaultPlayer(userId);
     }
 
     const player = await this.playerModel
-      .findOne({ userId: playerId })
-      .populate([
-        {
-          path: 'ownedCars.carRef',
-          select: 'name basePower imageUrl thumbnailUrl rating',
-        },
-        {
-          path: 'ownedCars.parts.partRef',
-          select: 'name defaultIconUrl upgradeLevels type',
-        },
-      ])
-      .lean<PlayerLean>()
+      .findOne({ userId })
+      .lean<PlayerLeanDoc>()
       .exec();
 
     if (!player) {
       throw new NotFoundException('Player not found');
     }
 
-    const ownedCars: PlayerCarDto[] = player.ownedCars.map(
-      ({ carRef, power, sellPrice, parts }) => ({
-        carId: carRef._id.toString(),
-        name: carRef.name,
-        // basePower: carRef.basePower,
-        currentPower: power,
-        rating: 4, // нужен алгоритм подсчета рейтинга тачки (кол-во побед, кол-во гонок, мощность и тд)
-        imageUrl: carRef.imageUrl,
-        thumbnailUrl: carRef.thumbnailUrl,
-        sellPrice,
-        parts: parts.map(({ partRef, level }) => {
-          const lvl = partRef.upgradeLevels.find((l) => l.level === level);
-
-          return {
-            partId: partRef._id.toString(),
-            name: partRef.name,
-            level,
-            powerBoost: lvl?.powerBoost ?? 0,
-            iconUrl: lvl?.iconUrl,
-          };
-        }),
-      }),
+    const carIds = player.ownedCars.map((car) => car.carRef);
+    const partIds = player.ownedCars.flatMap((car) =>
+      car.parts.map((part) => part.partRef),
     );
+
+    const [cars, parts] = await Promise.all([
+      this.carModel
+        .find({ _id: { $in: carIds } })
+        .select('name imageUrl')
+        .lean()
+        .exec(),
+      this.partModel
+        .find({ _id: { $in: partIds } })
+        .select('name upgradeLevels')
+        .lean()
+        .exec(),
+    ]);
+
+    const ownedCars = mapOwnedCarsToDto(player.ownedCars, cars, parts);
 
     return {
       userId: player.userId,
@@ -114,7 +139,7 @@ export class PlayerService {
     const ownedCarId = new Types.ObjectId();
 
     // Формируем начальную машину с запчастями 0 уровня
-    const initialOwnedCar = {
+    const initialOwnedCar: OwnedCar = {
       _id: ownedCarId,
       carRef: firstCar._id,
       power: firstCar.basePower,
@@ -126,7 +151,7 @@ export class PlayerService {
     };
 
     // Создаём игрока
-    const newPlayer = new this.playerModel({
+    const newPlayerData: Partial<Player> = {
       username: 'empty',
       userId,
       level: 1,
@@ -148,17 +173,13 @@ export class PlayerService {
         racesForLevel: 0,
         challengesReceived: 0,
       },
-      // сразу выбираем первую машину из гаража
       ownedCars: [initialOwnedCar],
-      selectedCarId: ownedCarId, // пока можно null или сразу взять _id после сохранения
+      selectedCarId: ownedCarId,
       recentChallenges: [],
-    });
+    };
 
-    // Сохраняем, чтобы получить _id для selectedOwnedCarId
-    // await newPlayer.save();
+    const newPlayer = new this.playerModel(newPlayerData);
 
-    // Назначаем выбранную машину
-    // newPlayer.selectedCarId = newPlayer.ownedCars[0]._id;
     await newPlayer.save();
 
     return newPlayer;

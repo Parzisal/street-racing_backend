@@ -27,7 +27,7 @@ import { PartsModule } from './modules/parts/parts.module';
     ]),
     PlayerModule,
     CarDealershipModule,
-    // GarageModule,
+    GarageModule,
     // RacesModule,
     // FuelModule,
     // PartsModule,

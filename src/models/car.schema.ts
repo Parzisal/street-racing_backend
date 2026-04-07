@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, HydratedDocument } from 'mongoose';
+import { Document } from 'mongoose';
 
 @Schema()
 export class Car extends Document {
@@ -26,7 +26,7 @@ export class Car extends Document {
 }
 
 export type CarDto = Pick<
-  HydratedDocument<Car>,
+  Car,
   | 'name'
   | 'carModel'
   | 'basePower'

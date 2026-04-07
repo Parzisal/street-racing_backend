@@ -8,6 +8,7 @@ import { Model, Types } from 'mongoose';
 import { OwnedCar, Player, PlayerDocument } from '../../models/player.schema';
 import { Car } from '../../models/car.schema';
 import { Part } from '../../models/part.schema';
+import { mapOwnedCarsToDto } from '../player/player-owned-cars.mapper';
 
 @Injectable()
 export class CarDealershipService {
@@ -20,11 +21,8 @@ export class CarDealershipService {
   // --------------------------------------------------
   // 🚗 Машины, доступные игроку
   // --------------------------------------------------
-  async getAvailableCars(playerId: string) {
-    const player = await this.playerModel
-      .findOne({ userId: playerId })
-      .lean()
-      .exec();
+  async getAvailableCars(userId: string) {
+    const player = await this.playerModel.findOne({ userId }).lean().exec();
 
     if (!player) {
       throw new NotFoundException('Player not found');
@@ -34,6 +32,7 @@ export class CarDealershipService {
 
     const cars = await this.carModel
       .find({ level: { $lte: maxCarLevel } })
+      .sort({ level: 1 })
       .lean()
       .exec();
 
@@ -49,8 +48,8 @@ export class CarDealershipService {
     }));
   }
 
-  async buyCar(playerId: string, carId: string) {
-    const player = await this.playerModel.findOne({ userId: playerId });
+  async buyCar(userId: string, carId: string) {
+    const player = await this.playerModel.findOne({ userId });
 
     if (!player) {
       throw new NotFoundException('Player not found');
@@ -102,91 +101,33 @@ export class CarDealershipService {
     player.stats.spentMoney += car.priceSilver;
 
     // 🚗 Добавляем в гараж
-    player.ownedCars.push(ownedCar);
+    player.ownedCars.unshift(ownedCar);
 
     // ⭐ Сразу выбираем её
     player.selectedCarId = ownedCarId;
 
     await player.save();
 
+    const carIds = player.ownedCars.map((item) => item.carRef);
+    const allCars = await this.carModel
+      .find({ _id: { $in: carIds } })
+      .select('name imageUrl')
+      .lean()
+      .exec();
+
+    const ownedCars = mapOwnedCarsToDto(player.ownedCars, allCars, parts);
+
     return {
-      silver: player.silver,
-      gold: player.gold,
-      selectedCarId: player.selectedCarId.toString(),
-      ownedCars: player.ownedCars, // Придумать как вернуть автомобили, щас рассинхрон будто бы
-      stats: {
-        spentMoney: player.stats.spentMoney,
+      success: true,
+      changes: {
+        silver: player.silver,
+        gold: player.gold,
+        selectedCarId: ownedCarId.toString(),
+        ownedCars,
+        stats: {
+          spentMoney: player.stats.spentMoney,
+        },
       },
     };
   }
-
-  //   async getAvailableCars(playerId: string) {
-  //     const player = await this.playerModel
-  //       .findById(playerId)
-  //       .select('level ownedCars');
-  //     if (!player) throw new BadRequestException('Player not found');
-
-  //     const cars = await this.carModel.find().lean();
-
-  //     const owned = new Set(player.ownedCars.map((c) => c.car.toString()));
-
-  //     return cars.map((car) => ({
-  //       id: car._id.toString(),
-  //       name: car.name,
-  //       basePower: car.basePower,
-  //       levelRequired: car.levelRequired,
-  //       price: { silver: car.priceSilver, gold: car.priceGold },
-  //       rating: car.rating,
-  //       imageUrl: car.imageUrl || '',
-  //       thumbnailUrl: car.thumbnailUrl || '',
-  //       isOwned: owned.has(car._id.toString()),
-  //       canBuyByLevel:
-  //         car.levelRequired <= player.level && !owned.has(car._id.toString()),
-  //       isVisible: car.levelRequired <= player.level + 1,
-  //       isBlurred: car.levelRequired > player.level + 1,
-  //     }));
-  //   }
-
-  //   async buyCar(playerId: string, carId: string) {
-  //     const player = await this.playerModel.findById(playerId);
-  //     const car = await this.carModel.findById(carId);
-
-  //     if (!player || !car) throw new BadRequestException('Not found');
-
-  //     if (car.levelRequired > player.level)
-  //       throw new BadRequestException(`Required level ${car.levelRequired}`);
-  //     if (player.ownedCars.length >= player.garageSlots)
-  //       throw new BadRequestException('Garage full');
-  //     if (player.silver < car.priceSilver || player.gold < car.priceGold)
-  //       throw new BadRequestException('Insufficient funds');
-
-  //     player.silver -= car.priceSilver;
-  //     player.gold -= car.priceGold;
-  //     player.stats.spentMoney += car.priceSilver;
-
-  //     const partsTemplates = await this.partModel.find();
-  //     const newCar = {
-  //       car: car._id,
-  //       power: car.basePower,
-  //       sellPrice: Math.round(car.priceSilver * 0.65),
-  //       parts: partsTemplates.map((p) => ({ part: p._id, level: 0, stars: 0 })),
-  //     };
-
-  //     player.ownedCars.push(newCar);
-  //     const newIndex = player.ownedCars.length - 1;
-  //     player.selectedCarId = car._id;
-
-  //     await player.save();
-
-  //     return {
-  //       success: true,
-  //       changes: {
-  //         silver: player.silver,
-  //         gold: player.gold,
-  //         selectedCarId: car._id.toString(),
-  //         newCarIndex: newIndex,
-  //         newCar: newCar,
-  //       },
-  //     };
-  //   }
 }

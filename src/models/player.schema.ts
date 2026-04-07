@@ -1,10 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, HydratedDocument, Types } from 'mongoose';
-import type {
-  FuelData,
-  PlayerStats,
-  RecentChallenge,
-} from '../types/player.types';
 
 export type OwnedCarPart = {
   partRef: Types.ObjectId;
@@ -19,9 +14,31 @@ export type OwnedCar = {
   parts: OwnedCarPart[];
 };
 
+type FuelData = {
+  current: number;
+  max: number;
+  lastRefill: Date;
+};
+
+type PlayerStats = {
+  totalRaces: number;
+  wins: number;
+  losses: number;
+  spentMoney: number;
+  earnedMoney: number;
+  racesForLevel: number;
+  challengesReceived: number;
+};
+
+type RecentChallenge = {
+  challengerId: string;
+  raceId: string;
+  date: Date;
+};
+
 @Schema({ timestamps: true })
 export class Player extends Document {
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   username: string;
 
   @Prop({ required: true, unique: true })

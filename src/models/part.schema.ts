@@ -7,10 +7,10 @@ export class Part extends Document {
   name: string;
 
   @Prop({ type: Array, required: true })
-  upgradeLevels: UpgradeLevels[];
+  upgradeLevels: UpgradeLevel[];
 }
 
-export type UpgradeLevels = {
+export type UpgradeLevel = {
   level: number;
   powerBoost: number;
   costSilver: number;

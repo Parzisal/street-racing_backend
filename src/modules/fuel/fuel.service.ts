@@ -18,8 +18,8 @@ export class FuelService {
     return fuel;
   }
 
-  async getFuel(playerId: string) {
-    const player = await this.playerModel.findById(playerId);
+  async getFuel(userId: string) {
+    const player = await this.playerModel.findOne({ userId }).exec();
     if (!player) throw new BadRequestException('Player not found');
 
     player.fuel = this.calculateFuel(player.fuel);
@@ -28,8 +28,8 @@ export class FuelService {
     return player.fuel;
   }
 
-  async refillFuel(playerId: string) {
-    const player = await this.playerModel.findById(playerId);
+  async refillFuel(userId: string) {
+    const player = await this.playerModel.findOne({ userId }).exec();
     if (!player) throw new BadRequestException('Player not found');
 
     if (player.gold < 5) throw new BadRequestException('Not enough gold');
@@ -49,8 +49,8 @@ export class FuelService {
     };
   }
 
-  async increaseMaxFuel(playerId: string) {
-    const player = await this.playerModel.findById(playerId);
+  async increaseMaxFuel(userId: string) {
+    const player = await this.playerModel.findOne({ userId }).exec();
     if (!player) throw new BadRequestException('Player not found');
 
     if (player.gold < 10) throw new BadRequestException('Not enough gold');

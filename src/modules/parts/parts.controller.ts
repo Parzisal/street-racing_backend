@@ -7,9 +7,8 @@ export class PartsController {
 
   @Post('upgrade')
   async upgradePart(
-    @Req() req: any,
-    @Body() body: { carId: string; partId: string },
+    @Body() body: { userId: string; carId: string; partId: string },
   ) {
-    return this.partsService.upgradePart(req.user.id, body.carId, body.partId);
+    return this.partsService.upgradePart(body.userId, body.carId, body.partId);
   }
 }
