@@ -1,7 +1,7 @@
-import { Controller, Post, Body, Req } from '@nestjs/common';
+import { Controller, Post, Body, Req, Get } from '@nestjs/common';
 import { PartsService } from './parts.service';
 
-@Controller('parts')
+@Controller('api/parts')
 export class PartsController {
   constructor(private readonly partsService: PartsService) {}
 
@@ -10,5 +10,10 @@ export class PartsController {
     @Body() body: { userId: string; carId: string; partId: string },
   ) {
     return this.partsService.upgradePart(body.userId, body.carId, body.partId);
+  }
+
+  @Get('list')
+  async listParts() {
+    return this.partsService.list();
   }
 }

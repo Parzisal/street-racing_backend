@@ -12,7 +12,7 @@ import { CarDealershipService } from './car-dealership.service';
 export class CarDealershipController {
   constructor(private readonly service: CarDealershipService) {}
 
-  @Get(':userId')
+  @Get(':userId/available')
   async getCars(@Param('userId') userId: string) {
     return this.service.getAvailableCars(userId);
   }

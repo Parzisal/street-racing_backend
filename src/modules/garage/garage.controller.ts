@@ -5,12 +5,12 @@ import { GarageService } from './garage.service';
 export class GarageController {
   constructor(private readonly garageService: GarageService) {}
 
-  @Post('sell-car')
+  @Post('sell')
   async sellCar(@Body() body: { userId: string; carId: string }) {
     return this.garageService.sellCar(body.userId, body.carId);
   }
 
-  @Post('select-car')
+  @Post('select')
   async selectCar(@Body() body: { userId: string; carId: string }) {
     return this.garageService.selectCar(body.userId, body.carId);
   }

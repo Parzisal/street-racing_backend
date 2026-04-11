@@ -30,7 +30,7 @@ import { PartsModule } from './modules/parts/parts.module';
     GarageModule,
     // RacesModule,
     // FuelModule,
-    // PartsModule,
+    PartsModule,
   ],
   providers: [SeedService],
 })

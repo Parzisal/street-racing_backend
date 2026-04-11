@@ -1,16 +1,6 @@
 import { Types } from 'mongoose';
-import type { PlayerCarDto } from '../../types/player.types';
-
-type OwnedCarLike = {
-  _id: Types.ObjectId;
-  carRef: Types.ObjectId;
-  power: number;
-  sellPrice: number;
-  parts: Array<{
-    partRef: Types.ObjectId;
-    level: number;
-  }>;
-};
+import type { PlayerCarDto } from '../../types/player-dto.types';
+import { OwnedCar } from '../../models/player.schema';
 
 type CarLike = {
   _id: Types.ObjectId;
@@ -29,7 +19,7 @@ type PartLike = {
 };
 
 export const mapOwnedCarsToDto = (
-  ownedCars: OwnedCarLike[],
+  ownedCars: OwnedCar[],
   cars: CarLike[],
   parts: PartLike[],
 ): PlayerCarDto[] => {
@@ -46,7 +36,7 @@ export const mapOwnedCarsToDto = (
       );
 
       return {
-        partId: ownedPart.partRef.toString(),
+        partId: ownedPart._id.toString(),
         name: part?.name ?? 'Unknown part',
         level: ownedPart.level,
         powerBoost: levelData?.powerBoost ?? 0,

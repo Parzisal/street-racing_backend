@@ -9,6 +9,7 @@ import { OwnedCar, Player, PlayerDocument } from '../../models/player.schema';
 import { Car } from '../../models/car.schema';
 import { Part } from '../../models/part.schema';
 import { mapOwnedCarsToDto } from '../player/player-owned-cars.mapper';
+import { CarsDealershipListGetDto } from '../../types/car-dealership.types';
 
 @Injectable()
 export class CarDealershipService {
@@ -21,7 +22,7 @@ export class CarDealershipService {
   // --------------------------------------------------
   // 🚗 Машины, доступные игроку
   // --------------------------------------------------
-  async getAvailableCars(userId: string) {
+  async getAvailableCars(userId: string): Promise<CarsDealershipListGetDto[]> {
     const player = await this.playerModel.findOne({ userId }).lean().exec();
 
     if (!player) {
@@ -89,10 +90,15 @@ export class CarDealershipService {
       carRef: car._id,
       power: car.basePower,
       sellPrice: Math.round(car.priceSilver * 0.7),
-      parts: parts.map((p) => ({
-        partRef: p._id,
-        level: 0,
-      })),
+      parts: parts.map((p) => {
+        const generatedPartId = new Types.ObjectId();
+
+        return {
+          _id: generatedPartId,
+          partRef: p._id,
+          level: 0,
+        };
+      }),
     };
 
     // 💸 Списываем деньги

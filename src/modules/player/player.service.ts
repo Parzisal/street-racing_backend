@@ -4,7 +4,7 @@ import { Types, type Model } from 'mongoose';
 import { Car } from 'src/models/car.schema';
 import { Part } from 'src/models/part.schema';
 import { OwnedCar, Player, PlayerDocument } from '../../models/player.schema';
-import type { PlayerGetDto } from '../../types/player.types';
+import type { PlayerGetDto } from '../../types/player-dto.types';
 import { mapOwnedCarsToDto } from './player-owned-cars.mapper';
 
 type PlayerLeanDoc = {
@@ -35,16 +35,7 @@ type PlayerLeanDoc = {
     raceId: Types.ObjectId;
     date: Date;
   }>;
-  ownedCars: Array<{
-    _id: Types.ObjectId;
-    carRef: Types.ObjectId;
-    power: number;
-    sellPrice: number;
-    parts: Array<{
-      partRef: Types.ObjectId;
-      level: number;
-    }>;
-  }>;
+  ownedCars: Array<OwnedCar>;
 };
 
 @Injectable()
@@ -144,10 +135,15 @@ export class PlayerService {
       carRef: firstCar._id,
       power: firstCar.basePower,
       sellPrice: Math.round(firstCar.priceSilver * 0.7),
-      parts: allParts.map((part) => ({
-        partRef: part._id,
-        level: 0, // начинаем с 0 уровня
-      })),
+      parts: allParts.map((part) => {
+        const generatedPartId = new Types.ObjectId();
+
+        return {
+          _id: generatedPartId,
+          partRef: part._id,
+          level: 0, // начинаем с 0 уровня
+        };
+      }),
     };
 
     // Создаём игрока

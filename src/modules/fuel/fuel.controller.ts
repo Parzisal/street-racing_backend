@@ -1,7 +1,7 @@
 import { BadRequestException, Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { FuelService } from './fuel.service';
 
-@Controller('fuel')
+@Controller('api/fuel')
 export class FuelController {
   constructor(private readonly fuelService: FuelService) {}
 

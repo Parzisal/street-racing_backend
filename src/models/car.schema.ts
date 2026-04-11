@@ -25,6 +25,7 @@ export class Car extends Document {
   imageUrl: string;
 }
 
+// todo: will remove, use in mocks
 export type CarDto = Pick<
   Car,
   | 'name'
