@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "./orm-dist",
+    "rootDir": "."
+  },
+  "include": ["data-source.ts", "src/entities/**/*.ts", "src/migrations/**/*.ts"]
+}

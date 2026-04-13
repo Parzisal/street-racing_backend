@@ -1,23 +1,37 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Car, CarDto } from '../models/car.schema';
-import { Part } from '../models/part.schema';
+import { Car } from 'src/entities/car.entity';
+import { uuidv7 } from 'uuidv7';
+import { CarRepository } from 'src/repositories/car.repository';
+import { PartRepository } from 'src/repositories/part.repository';
+
+type PartUpgradeLevelSeed = {
+  level: number;
+  powerBoost: number;
+  costSilver: number;
+  iconUrl: string;
+};
+
+type PartCategorySeed = {
+  name: string;
+  upgradeLevels: PartUpgradeLevelSeed[];
+};
 
 @Injectable()
 export class SeedService {
   constructor(
-    @InjectModel(Car.name) private carModel: Model<Car>,
-    @InjectModel(Part.name) private partModel: Model<Part>,
+    private readonly carsRepository: CarRepository,
+    private readonly partsRepository: PartRepository,
   ) {}
 
   async seed() {
-    if ((await this.carModel.countDocuments()) > 0) {
-      return;
-    }
+    await this.seedParts();
+    await this.seedCars();
 
-    await this.partModel.insertMany([
-      // 1️⃣ Шины
+    console.log('Seed completed');
+  }
+
+  private getPartsSeedDefinitions(): PartCategorySeed[] {
+    return [
       {
         name: 'Шины',
         upgradeLevels: [
@@ -59,7 +73,6 @@ export class SeedService {
           },
         ],
       },
-      // 2️⃣ Зажигание
       {
         name: 'Зажигание',
         upgradeLevels: [
@@ -67,7 +80,8 @@ export class SeedService {
             level: 0,
             powerBoost: 0,
             costSilver: 0,
-            iconUrl: 'https://placehold.co/100x100/gray/white?text=Зажигание+0',
+            iconUrl:
+              'https://placehold.co/100x100/gray/white?text=Зажигание+0',
           },
           {
             level: 1,
@@ -103,7 +117,6 @@ export class SeedService {
           },
         ],
       },
-      // 3️⃣ Сцепление
       {
         name: 'Сцепление',
         upgradeLevels: [
@@ -111,7 +124,8 @@ export class SeedService {
             level: 0,
             powerBoost: 0,
             costSilver: 0,
-            iconUrl: 'https://placehold.co/100x100/gray/white?text=Сцепление+0',
+            iconUrl:
+              'https://placehold.co/100x100/gray/white?text=Сцепление+0',
           },
           {
             level: 1,
@@ -147,7 +161,6 @@ export class SeedService {
           },
         ],
       },
-      // 4️⃣ ЦПУ
       {
         name: 'ЦПУ',
         upgradeLevels: [
@@ -189,7 +202,6 @@ export class SeedService {
           },
         ],
       },
-      // 5️⃣ Закись азота
       {
         name: 'Закись азота',
         upgradeLevels: [
@@ -231,7 +243,6 @@ export class SeedService {
           },
         ],
       },
-      // 6️⃣ Выхлоп
       {
         name: 'Выхлоп',
         upgradeLevels: [
@@ -273,7 +284,6 @@ export class SeedService {
           },
         ],
       },
-      // 7️⃣ Подвеска
       {
         name: 'Подвеска',
         upgradeLevels: [
@@ -281,7 +291,8 @@ export class SeedService {
             level: 0,
             powerBoost: 0,
             costSilver: 0,
-            iconUrl: 'https://placehold.co/100x100/gray/white?text=Подвеска+0',
+            iconUrl:
+              'https://placehold.co/100x100/gray/white?text=Подвеска+0',
           },
           {
             level: 1,
@@ -316,7 +327,6 @@ export class SeedService {
           },
         ],
       },
-      // 8️⃣ Наддув
       {
         name: 'Наддув',
         upgradeLevels: [
@@ -358,7 +368,6 @@ export class SeedService {
           },
         ],
       },
-      // 9️⃣ Впуск
       {
         name: 'Впуск',
         upgradeLevels: [
@@ -400,7 +409,6 @@ export class SeedService {
           },
         ],
       },
-      // 🔟 Радиатор
       {
         name: 'Радиатор',
         upgradeLevels: [
@@ -408,7 +416,8 @@ export class SeedService {
             level: 0,
             powerBoost: 0,
             costSilver: 0,
-            iconUrl: 'https://placehold.co/100x100/gray/white?text=Радиатор+0',
+            iconUrl:
+              'https://placehold.co/100x100/gray/white?text=Радиатор+0',
           },
           {
             level: 1,
@@ -443,49 +452,94 @@ export class SeedService {
           },
         ],
       },
-    ]);
+    ];
+  }
 
-    const mockCar: CarDto[] = [
+  async seedParts() {
+    for (const category of this.getPartsSeedDefinitions()) {
+      for (const ul of category.upgradeLevels) {
+        const exists = await this.partsRepository.findOne({
+          where: { name: category.name, level: ul.level },
+        });
+
+        if (!exists) {
+          const part = this.partsRepository.create({
+            id: uuidv7(),
+            name: category.name,
+            level: ul.level,
+            powerBoost: ul.powerBoost,
+            priceSilver: ul.costSilver,
+            imageUrl: ul.iconUrl,
+          });
+          await this.partsRepository.save(part);
+          console.log(`Добавлена запчасть: ${category.name} (ур. ${ul.level})`);
+        }
+      }
+    }
+  }
+
+  async seedCars() {
+    const carsData = [
       {
+        id: uuidv7(),
         name: 'ZAZ',
-        carModel: '965',
+        model: '965',
         basePower: 27,
+        baseRating: 15, // добавил - низкий рейтинг для старой машины
+        buyLevel: 1, // уровень покупки
         priceSilver: 1000,
         priceGold: 0,
-        level: 1,
         imageUrl: 'https://placehold.co/400x200?text=ZAZ+965',
       },
       {
-        name: 'Porsche 911',
-        carModel: 'GT2 RS',
+        id: uuidv7(),
+        name: 'Porsche',
+        model: '911 GT2 RS',
         basePower: 831,
+        baseRating: 95, // высокий рейтинг для Porsche
+        buyLevel: 1,
         priceSilver: 410166,
         priceGold: 0,
-        level: 1,
         imageUrl: 'https://placehold.co/400x200?text=Porsche+911+GT2+RS',
       },
       {
-        name: 'Lamborghini Gallardo ',
-        carModel: 'LP',
+        id: uuidv7(),
+        name: 'Lamborghini',
+        model: 'Gallardo LP',
         basePower: 924,
+        baseRating: 92,
+        buyLevel: 2,
         priceSilver: 1237494,
         priceGold: 0,
-        level: 2,
         imageUrl: 'https://placehold.co/400x200?text=Lamborghini+Gallardo',
       },
       {
-        name: 'Dodge Challenger ',
-        carModel: 'R/T',
+        id: uuidv7(),
+        name: 'Dodge',
+        model: 'Challenger R/T',
         basePower: 699,
+        baseRating: 78,
+        buyLevel: 2,
         priceSilver: 500000,
         priceGold: 50,
-        level: 2,
         imageUrl: 'https://placehold.co/400x200?text=Dodge+Challenger',
       },
-      // Добавь остальные машины из скринов
     ];
-    await this.carModel.insertMany(mockCar);
 
-    console.log('Seed completed');
+    for (const carData of carsData) {
+      // Проверяем, нет ли уже такой машины
+      const exists = await this.carsRepository.findOne({
+        where: {
+          name: carData.name,
+          model: carData.model,
+        },
+      });
+
+      if (!exists) {
+        const car = this.carsRepository.create(carData);
+        await this.carsRepository.save(car);
+        console.log(`Добавлена машина: ${carData.name} ${carData.model}`);
+      }
+    }
   }
 }
