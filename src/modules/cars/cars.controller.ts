@@ -18,7 +18,7 @@ import { UpdateCarDto } from './update-car.dto';
 
 @Controller('cars')
 export class CarsController {
-  constructor(private readonly carsService: CarsService) { }
+  constructor(private readonly carsService: CarsService) {}
 
   // @Post()
   // @HttpCode(HttpStatus.CREATED)

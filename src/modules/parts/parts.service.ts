@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Part } from 'src/entities/part.entity';
-import { PartRepository } from 'src/repositories/part.repository';
+import { Part } from '@entities/part.entity';
+import { PartRepository } from '@repositories/part.repository';
 import { CreatePartDto } from './create-part.dto';
 import { UpdatePartDto } from './update-part.dto';
 
@@ -10,6 +10,7 @@ export class PartsService {
 
   async create(dto: CreatePartDto): Promise<Part> {
     const part = this.partRepository.create(dto);
+
     return this.partRepository.save(part);
   }
 
@@ -19,20 +20,24 @@ export class PartsService {
 
   async findOne(id: string): Promise<Part> {
     const part = await this.partRepository.findOne({ where: { id } });
+
     if (!part) {
       throw new NotFoundException(`Деталь с ID ${id} не найдена`);
     }
+
     return part;
   }
 
   async update(id: string, dto: UpdatePartDto): Promise<Part> {
     const part = await this.findOne(id);
     Object.assign(part, dto);
+
     return this.partRepository.save(part);
   }
 
   async remove(id: string): Promise<void> {
     const result = await this.partRepository.delete(id);
+
     if (result.affected === 0) {
       throw new NotFoundException(`Деталь с ID ${id} не найдена`);
     }

@@ -1,9 +1,8 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateSettingsTable1776016094298 implements MigrationInterface {
-
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             CREATE TABLE IF NOT EXISTS settings (
                 id INT PRIMARY KEY NOT NULL DEFAULT 1,
                 default_start_level INT NOT NULL DEFAULT 1,
@@ -14,12 +13,11 @@ export class CreateSettingsTable1776016094298 implements MigrationInterface {
                 default_car_id UUID REFERENCES cars(id)
             );
         `);
-    }
+  }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             DROP TABLE IF EXISTS settings;
         `);
-    }
-
+  }
 }

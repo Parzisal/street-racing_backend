@@ -16,7 +16,7 @@ import { UpdatePartDto } from './update-part.dto';
 
 @Controller('parts')
 export class PartsController {
-  constructor(private readonly partsService: PartsService) { }
+  constructor(private readonly partsService: PartsService) {}
 
   // @Post()
   // @HttpCode(HttpStatus.CREATED)

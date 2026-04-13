@@ -30,9 +30,7 @@ export class ProfileCarPartsController {
   }
 
   @Get('by-profile-car/:profileCarId')
-  findByProfileCar(
-    @Param('profileCarId', ParseUUIDPipe) profileCarId: string,
-  ) {
+  findByProfileCar(@Param('profileCarId', ParseUUIDPipe) profileCarId: string) {
     return this.profileCarPartsService.findByProfileCarId(profileCarId);
   }
 

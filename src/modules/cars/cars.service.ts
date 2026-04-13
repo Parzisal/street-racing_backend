@@ -3,16 +3,17 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Between, MoreThan, LessThan, ILike } from 'typeorm';
 import { CreateCarDto } from './create-car.dto';
 import { UpdateCarDto } from './update-car.dto';
-import { Car } from 'src/entities/car.entity';
-import { CarRepository } from 'src/repositories/car.repository';
+import { Car } from '@entities/car.entity';
+import { CarRepository } from '@repositories/car.repository';
 
 @Injectable()
 export class CarsService {
-  constructor(private readonly carsRepository: CarRepository) {}
+  constructor(private readonly carsRepository: CarRepository) { }
 
   // CREATE - создание новой машины
   async create(createCarDto: CreateCarDto): Promise<Car> {
     const car = this.carsRepository.create(createCarDto);
+
     return await this.carsRepository.save(car);
   }
 
@@ -24,15 +25,18 @@ export class CarsService {
   // READ - получить одну машину по ID
   async findOne(id: string): Promise<Car> {
     const car = await this.carsRepository.findOne({ where: { id } });
+
     if (!car) {
       throw new NotFoundException(`Машина с ID ${id} не найдена`);
     }
+
     return car;
   }
 
   async update(id: string, dto: UpdateCarDto): Promise<Car> {
     const car = await this.findOne(id);
     Object.assign(car, dto);
+
     return this.carsRepository.save(car);
   }
 
@@ -71,7 +75,10 @@ export class CarsService {
   }
 
   // READ - с сортировкой и пагинацией
-  async findAllPaginated(page: number = 1, limit: number = 10): Promise<{
+  async findAllPaginated(
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<{
     data: Car[];
     total: number;
     page: number;
@@ -94,6 +101,7 @@ export class CarsService {
   // DELETE - удаление машины
   async remove(id: string): Promise<void> {
     const result = await this.carsRepository.delete(id);
+
     if (result.affected === 0) {
       throw new NotFoundException(`Машина с ID ${id} не найдена`);
     }
@@ -140,19 +148,27 @@ export class CarsService {
     const queryBuilder = this.carsRepository.createQueryBuilder('car');
 
     if (params.minPower) {
-      queryBuilder.andWhere('car.basePower >= :minPower', { minPower: params.minPower });
+      queryBuilder.andWhere('car.basePower >= :minPower', {
+        minPower: params.minPower,
+      });
     }
 
     if (params.maxPrice) {
-      queryBuilder.andWhere('car.priceSilver <= :maxPrice', { maxPrice: params.maxPrice });
+      queryBuilder.andWhere('car.priceSilver <= :maxPrice', {
+        maxPrice: params.maxPrice,
+      });
     }
 
     if (params.minRating) {
-      queryBuilder.andWhere('car.baseRating >= :minRating', { minRating: params.minRating });
+      queryBuilder.andWhere('car.baseRating >= :minRating', {
+        minRating: params.minRating,
+      });
     }
 
     if (params.model) {
-      queryBuilder.andWhere('car.model ILIKE :model', { model: `%${params.model}%` });
+      queryBuilder.andWhere('car.model ILIKE :model', {
+        model: `%${params.model}%`,
+      });
     }
 
     return await queryBuilder

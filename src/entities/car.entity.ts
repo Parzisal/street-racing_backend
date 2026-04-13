@@ -1,9 +1,5 @@
 // src/cars/car.entity.ts
-import { 
-  Entity, 
-  Column, 
-  PrimaryGeneratedColumn 
-} from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('cars') // указываем имя таблицы в БД
 export class Car {

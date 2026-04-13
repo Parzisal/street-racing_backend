@@ -1,9 +1,8 @@
-import type { MigrationInterface, QueryRunner } from "typeorm";
+import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class AddInitSchema1776013641164 implements MigrationInterface {
-
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
              CREATE TABLE IF NOT EXISTS cars (
                 id UUID PRIMARY KEY NOT NULL,
                 name TEXT NOT NULL,
@@ -51,11 +50,11 @@ export class AddInitSchema1776013641164 implements MigrationInterface {
                 id UUID PRIMARY KEY NOT NULL,
                 profile_id UUID NOT NULL REFERENCES profiles(id)
             );
-            `)
-    }
+            `);
+  }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
                 DROP TABLE IF EXISTS users_telegram;
                 DROP TABLE IF EXISTS profiles_cars_parts;
                 DROP TABLE IF EXISTS parts;
@@ -63,7 +62,6 @@ export class AddInitSchema1776013641164 implements MigrationInterface {
                 DROP TABLE IF EXISTS profiles_cars;
                 DROP TABLE IF EXISTS profiles;
                 DROP TABLE IF EXISTS cars;
-            `)
-    }
-
+            `);
+  }
 }

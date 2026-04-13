@@ -1,9 +1,4 @@
-import {
-  Entity,
-  PrimaryColumn,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { ProfileCar } from './profile-car.entity';
 import { Part } from './part.entity';
 
