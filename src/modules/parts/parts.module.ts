@@ -1,19 +1,14 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { PartsService } from './parts.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Part } from 'src/entities/part.entity';
+import { PartRepository } from 'src/repositories/part.repository';
 import { PartsController } from './parts.controller';
-import { Player, PlayerSchema } from '../../models/player.schema';
-import { Part, PartSchema } from '../../models/part.schema';
+import { PartsService } from './parts.service';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      { name: Player.name, schema: PlayerSchema },
-      { name: Part.name, schema: PartSchema },
-    ]),
-  ],
+  imports: [TypeOrmModule.forFeature([Part])],
   controllers: [PartsController],
-  providers: [PartsService],
-  exports: [PartsService],
+  providers: [PartRepository, PartsService],
+  exports: [PartsService, PartRepository],
 })
 export class PartsModule {}
