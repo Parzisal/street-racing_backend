@@ -10,6 +10,8 @@ import { ProfileRepository } from 'src/repositories/profile.repository';
 import { CarRepository } from 'src/repositories/car.repository';
 import { PartRepository } from 'src/repositories/part.repository';
 import { SettingsRepository } from 'src/repositories/settings.repository';
+import { ProfileCarRepository } from 'src/repositories/profile-car.repository';
+import { ProfileCarPartRepository } from 'src/repositories/profile-car-part.repository';
 import { ProfilesController } from './profiles.controller';
 import { ProfilesService } from './profiles.service';
 
@@ -30,6 +32,8 @@ import { ProfilesService } from './profiles.service';
     CarRepository,
     PartRepository,
     SettingsRepository,
+    ProfileCarRepository,
+    ProfileCarPartRepository,
     ProfilesService,
   ],
   exports: [ProfilesService, ProfileRepository],

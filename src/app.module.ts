@@ -38,15 +38,6 @@ import { SettingsModule } from './modules/settings/settings.module';
       synchronize: false, // false в production, т.к. таблица уже существует
       logging: true, // полезно для отладки - видит все SQL запросы
     }),
-    // MongooseModule.forRoot(
-    //   process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/street-racer',
-    // ),
-    // MongooseModule.forFeature([
-    //   { name: Player.name, schema: PlayerSchema },
-    //   // { name: Car.name, schema: CarSchema },
-    //   { name: Part.name, schema: PartSchema },
-    //   { name: Race.name, schema: RaceSchema },
-    // ]),
     CarsModule,
     ProfilesModule,
     ProfileCarsModule,
@@ -54,12 +45,6 @@ import { SettingsModule } from './modules/settings/settings.module';
     ProfileCarPartsModule,
     UsersTelegramModule,
     SettingsModule,
-    // PlayerModule,
-    // CarDealershipModule,
-    // GarageModule,
-    // RacesModule,
-    // FuelModule,
-    // PartsModule,
   ],
   providers: [],
 })

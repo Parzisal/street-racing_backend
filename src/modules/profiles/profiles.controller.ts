@@ -16,6 +16,8 @@ import { UpdateProfileDto } from './update-profile.dto';
 @Controller('profiles')
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) { }
+  private static readonly MOCK_JWT_PROFILE_ID =
+    '019d8643-1417-70d2-805d-2b2a12d62a09';
 
   @Post('/create-default')
   @HttpCode(HttpStatus.CREATED)
@@ -26,6 +28,14 @@ export class ProfilesController {
   @Get()
   findAll() {
     return this.profilesService.findAll();
+  }
+
+  @Get('/me')
+  getFrontendProfile() {
+    // TODO: replace with profile_id from JWT when auth is implemented.
+    return this.profilesService.getFrontendProfile(
+      ProfilesController.MOCK_JWT_PROFILE_ID,
+    );
   }
 
   @Get(':id')

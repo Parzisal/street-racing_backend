@@ -5,8 +5,6 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  Param,
-  ParseIntPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -25,26 +23,18 @@ export class SettingsController {
   }
 
   @Get()
-  findAll() {
-    return this.settingsService.findAll();
+  findOne() {
+    return this.settingsService.findOne(1);
   }
 
-  @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.settingsService.findOne(id);
+  @Patch()
+  update(@Body() dto: UpdateSettingsDto) {
+    return this.settingsService.update(1, dto);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateSettingsDto,
-  ) {
-    return this.settingsService.update(id, dto);
-  }
-
-  @Delete(':id')
+  @Delete()
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.settingsService.remove(id);
+  remove() {
+    return this.settingsService.remove(1);
   }
 }

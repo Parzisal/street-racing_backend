@@ -4,11 +4,19 @@ import { Profile } from 'src/entities/profile.entity';
 import { ProfileCar } from 'src/entities/profile-car.entity';
 import { ProfileCarPart } from 'src/entities/profile-car-part.entity';
 import { ProfileRepository } from 'src/repositories/profile.repository';
+import { ProfileCarRepository } from 'src/repositories/profile-car.repository';
+import { ProfileCarPartRepository } from 'src/repositories/profile-car-part.repository';
 import { UpdateProfileDto } from './update-profile.dto';
 import { SettingsRepository } from 'src/repositories/settings.repository';
 import { CarRepository } from 'src/repositories/car.repository';
 import { PartRepository } from 'src/repositories/part.repository';
 import { uuidv7 } from 'uuidv7';
+import {
+  FrontendCarDto,
+  FrontendGarageCarDto,
+  FrontendPartDto,
+  FrontendProfileDto,
+} from './dto/profile-frontend.dto';
 
 @Injectable()
 export class ProfilesService {
@@ -17,8 +25,10 @@ export class ProfilesService {
     private readonly partsRepository: PartRepository,
     private readonly settingsRepository: SettingsRepository,
     private readonly profileRepository: ProfileRepository,
+    private readonly profileCarRepository: ProfileCarRepository,
+    private readonly profileCarPartRepository: ProfileCarPartRepository,
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
 
   async createDefault(): Promise<Profile> {
     const appSettings = await this.settingsRepository.findOne({
@@ -104,5 +114,66 @@ export class ProfilesService {
     if (result.affected === 0) {
       throw new NotFoundException(`Профиль с ID ${id} не найден`);
     }
+  }
+
+  async getFrontendProfile(profileId: string): Promise<FrontendProfileDto> {
+    const profile = await this.findOne(profileId);
+    const profileCars = await this.profileCarRepository.find({
+      where: { profileId },
+      relations: { car: true },
+    });
+
+    const profileCarIds = profileCars.map((car) => car.id);
+    const partsByProfileCarId = new Map<string, FrontendPartDto[]>();
+
+    if (profileCarIds.length > 0) {
+      const profileCarParts = await this.profileCarPartRepository.find({
+        where: profileCarIds.map((profileCarId) => ({ profileCarId })),
+        relations: { part: true },
+      });
+
+      for (const profileCarPart of profileCarParts) {
+        const currentParts = partsByProfileCarId.get(profileCarPart.profileCarId) ?? [];
+        currentParts.push({
+          id: profileCarPart.part.id,
+          name: profileCarPart.part.name,
+          level: profileCarPart.part.level,
+          powerBoost: profileCarPart.part.powerBoost,
+          priceSilver: profileCarPart.part.priceSilver,
+          imageUrl: profileCarPart.part.imageUrl,
+        });
+        partsByProfileCarId.set(profileCarPart.profileCarId, currentParts);
+      }
+    }
+
+    const garage: FrontendGarageCarDto[] = profileCars.map((profileCar) => {
+      const car: FrontendCarDto = {
+        id: profileCar.car.id,
+        name: profileCar.car.name,
+        model: profileCar.car.model,
+        basePower: profileCar.car.basePower,
+        baseRating: profileCar.car.baseRating,
+        buyLevel: profileCar.car.buyLevel,
+        priceSilver: profileCar.car.priceSilver,
+        priceGold: profileCar.car.priceGold,
+        imageUrl: profileCar.car.imageUrl,
+      };
+
+      return {
+        profileCarId: profileCar.id,
+        car,
+        parts: partsByProfileCarId.get(profileCar.id) ?? [],
+      };
+    });
+
+    return {
+      level: profile.level,
+      experience: profile.experience,
+      silver: profile.silver,
+      gold: profile.gold,
+      garageSlots: profile.garageSlots,
+      selectedCarId: profile.selectedCarId,
+      garage,
+    };
   }
 }
