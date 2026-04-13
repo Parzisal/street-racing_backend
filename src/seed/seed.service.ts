@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Car } from 'src/entities/car.entity';
+import { CarRepository } from '@repositories/car.repository';
+import { PartRepository } from '@repositories/part.repository';
 import { uuidv7 } from 'uuidv7';
-import { CarRepository } from 'src/repositories/car.repository';
-import { PartRepository } from 'src/repositories/part.repository';
 
 type PartUpgradeLevelSeed = {
   level: number;
@@ -80,8 +79,7 @@ export class SeedService {
             level: 0,
             powerBoost: 0,
             costSilver: 0,
-            iconUrl:
-              'https://placehold.co/100x100/gray/white?text=Зажигание+0',
+            iconUrl: 'https://placehold.co/100x100/gray/white?text=Зажигание+0',
           },
           {
             level: 1,
@@ -124,8 +122,7 @@ export class SeedService {
             level: 0,
             powerBoost: 0,
             costSilver: 0,
-            iconUrl:
-              'https://placehold.co/100x100/gray/white?text=Сцепление+0',
+            iconUrl: 'https://placehold.co/100x100/gray/white?text=Сцепление+0',
           },
           {
             level: 1,
@@ -291,8 +288,7 @@ export class SeedService {
             level: 0,
             powerBoost: 0,
             costSilver: 0,
-            iconUrl:
-              'https://placehold.co/100x100/gray/white?text=Подвеска+0',
+            iconUrl: 'https://placehold.co/100x100/gray/white?text=Подвеска+0',
           },
           {
             level: 1,
@@ -416,8 +412,7 @@ export class SeedService {
             level: 0,
             powerBoost: 0,
             costSilver: 0,
-            iconUrl:
-              'https://placehold.co/100x100/gray/white?text=Радиатор+0',
+            iconUrl: 'https://placehold.co/100x100/gray/white?text=Радиатор+0',
           },
           {
             level: 1,

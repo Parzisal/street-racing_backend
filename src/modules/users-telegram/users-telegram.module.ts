@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersTelegram } from 'src/entities/users-telegram.entity';
-import { Profile } from 'src/entities/profile.entity';
-import { UsersTelegramRepository } from 'src/repositories/users-telegram.repository';
-import { ProfileRepository } from 'src/repositories/profile.repository';
+import { UsersTelegram } from '@entities/users-telegram.entity';
+import { Profile } from '@entities/profile.entity';
+import { UsersTelegramRepository } from '@repositories/users-telegram.repository';
+import { ProfileRepository } from '@repositories/profile.repository';
 import { UsersTelegramController } from './users-telegram.controller';
 import { UsersTelegramService } from './users-telegram.service';
 

@@ -1,15 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { Profile } from 'src/entities/profile.entity';
-import { ProfileCar } from 'src/entities/profile-car.entity';
-import { ProfileCarPart } from 'src/entities/profile-car-part.entity';
-import { ProfileRepository } from 'src/repositories/profile.repository';
-import { ProfileCarRepository } from 'src/repositories/profile-car.repository';
-import { ProfileCarPartRepository } from 'src/repositories/profile-car-part.repository';
+import { Profile } from '@entities/profile.entity';
+import { ProfileCar } from '@entities/profile-car.entity';
+import { ProfileCarPart } from '@entities/profile-car-part.entity';
+import { ProfileRepository } from '@repositories/profile.repository';
+import { ProfileCarRepository } from '@repositories/profile-car.repository';
+import { ProfileCarPartRepository } from '@repositories/profile-car-part.repository';
 import { UpdateProfileDto } from './update-profile.dto';
-import { SettingsRepository } from 'src/repositories/settings.repository';
-import { CarRepository } from 'src/repositories/car.repository';
-import { PartRepository } from 'src/repositories/part.repository';
+import { SettingsRepository } from '@repositories/settings.repository';
+import { CarRepository } from '@repositories/car.repository';
+import { PartRepository } from '@repositories/part.repository';
 import { uuidv7 } from 'uuidv7';
 import {
   FrontendCarDto,
@@ -28,12 +28,13 @@ export class ProfilesService {
     private readonly profileCarRepository: ProfileCarRepository,
     private readonly profileCarPartRepository: ProfileCarPartRepository,
     private readonly dataSource: DataSource,
-  ) { }
+  ) {}
 
   async createDefault(): Promise<Profile> {
     const appSettings = await this.settingsRepository.findOne({
       where: { id: 1 },
     });
+
     if (!appSettings) {
       throw new NotFoundException(`Настройки не найдены`);
     }
@@ -45,11 +46,13 @@ export class ProfilesService {
     const car = await this.carRepository.findOne({
       where: { id: appSettings.defaultCarId },
     });
+
     if (!car) {
       throw new NotFoundException(`Default car not found`);
     }
 
     const parts = await this.partsRepository.find({ where: { level: 0 } });
+
     if (parts.length === 0) {
       throw new NotFoundException(`Parts not found`);
     }
@@ -87,6 +90,7 @@ export class ProfilesService {
       await profileCarPartRepo.save(profileCarParts);
 
       profile.selectedCarId = profileCar.id;
+
       return profile;
     });
   }
@@ -97,20 +101,24 @@ export class ProfilesService {
 
   async findOne(id: string): Promise<Profile> {
     const profile = await this.profileRepository.findOne({ where: { id } });
+
     if (!profile) {
       throw new NotFoundException(`Профиль с ID ${id} не найден`);
     }
+
     return profile;
   }
 
   async update(id: string, dto: UpdateProfileDto): Promise<Profile> {
     const profile = await this.findOne(id);
     Object.assign(profile, dto);
+
     return this.profileRepository.save(profile);
   }
 
   async remove(id: string): Promise<void> {
     const result = await this.profileRepository.delete(id);
+
     if (result.affected === 0) {
       throw new NotFoundException(`Профиль с ID ${id} не найден`);
     }
@@ -133,7 +141,8 @@ export class ProfilesService {
       });
 
       for (const profileCarPart of profileCarParts) {
-        const currentParts = partsByProfileCarId.get(profileCarPart.profileCarId) ?? [];
+        const currentParts =
+          partsByProfileCarId.get(profileCarPart.profileCarId) ?? [];
         currentParts.push({
           id: profileCarPart.part.id,
           name: profileCarPart.part.name,

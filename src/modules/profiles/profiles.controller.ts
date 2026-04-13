@@ -15,7 +15,7 @@ import { UpdateProfileDto } from './update-profile.dto';
 
 @Controller('profiles')
 export class ProfilesController {
-  constructor(private readonly profilesService: ProfilesService) { }
+  constructor(private readonly profilesService: ProfilesService) {}
   private static readonly MOCK_JWT_PROFILE_ID =
     '019d8643-1417-70d2-805d-2b2a12d62a09';
 

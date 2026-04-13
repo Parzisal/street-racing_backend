@@ -3,10 +3,10 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { ProfileCarPart } from 'src/entities/profile-car-part.entity';
-import { ProfileCarPartRepository } from 'src/repositories/profile-car-part.repository';
-import { ProfileCarRepository } from 'src/repositories/profile-car.repository';
-import { PartRepository } from 'src/repositories/part.repository';
+import { ProfileCarPart } from '@entities/profile-car-part.entity';
+import { ProfileCarPartRepository } from '@repositories/profile-car-part.repository';
+import { ProfileCarRepository } from '@repositories/profile-car.repository';
+import { PartRepository } from '@repositories/part.repository';
 import { CreateProfileCarPartDto } from './create-profile-car-part.dto';
 
 @Injectable()
@@ -21,19 +21,26 @@ export class ProfileCarPartsService {
     const profileCar = await this.profileCarRepository.findOne({
       where: { id: dto.profileCarId },
     });
+
     if (!profileCar) {
       throw new BadRequestException(
         `Запись гаража ${dto.profileCarId} не найдена`,
       );
     }
-    const part = await this.partRepository.findOne({ where: { id: dto.partId } });
+
+    const part = await this.partRepository.findOne({
+      where: { id: dto.partId },
+    });
+
     if (!part) {
       throw new BadRequestException(`Деталь ${dto.partId} не найдена`);
     }
+
     const row = this.profileCarPartRepository.create({
       profileCarId: dto.profileCarId,
       partId: dto.partId,
     });
+
     return this.profileCarPartRepository.save(row);
   }
 
@@ -45,18 +52,17 @@ export class ProfileCarPartsService {
     return this.profileCarPartRepository.find({ where: { profileCarId } });
   }
 
-  async findOne(
-    profileCarId: string,
-    partId: string,
-  ): Promise<ProfileCarPart> {
+  async findOne(profileCarId: string, partId: string): Promise<ProfileCarPart> {
     const row = await this.profileCarPartRepository.findOne({
       where: { profileCarId, partId },
     });
+
     if (!row) {
       throw new NotFoundException(
         `Связь profileCar=${profileCarId}, part=${partId} не найдена`,
       );
     }
+
     return row;
   }
 
@@ -65,6 +71,7 @@ export class ProfileCarPartsService {
       profileCarId,
       partId,
     });
+
     if (result.affected === 0) {
       throw new NotFoundException(
         `Связь profileCar=${profileCarId}, part=${partId} не найдена`,

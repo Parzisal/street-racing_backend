@@ -3,11 +3,11 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CarsService } from './cars.service';
 import { CarsController } from './cars.controller';
-import { Car } from 'src/entities/car.entity';
-import { Part } from 'src/entities/part.entity';
-import { SeedService } from 'src/seed/seed.service';
-import { CarRepository } from 'src/repositories/car.repository';
-import { PartRepository } from 'src/repositories/part.repository';
+import { Car } from '@entities/car.entity';
+import { Part } from '@entities/part.entity';
+import { SeedService } from '@seed/seed.service';
+import { CarRepository } from '@repositories/car.repository';
+import { PartRepository } from '@repositories/part.repository';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Car, Part])],

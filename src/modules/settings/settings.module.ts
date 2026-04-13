@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Settings } from 'src/entities/settings.entity';
-import { Car } from 'src/entities/car.entity';
-import { SettingsRepository } from 'src/repositories/settings.repository';
-import { CarRepository } from 'src/repositories/car.repository';
+import { Settings } from '@entities/settings.entity';
+import { Car } from '@entities/car.entity';
+import { SettingsRepository } from '@repositories/settings.repository';
+import { CarRepository } from '@repositories/car.repository';
 import { SettingsController } from './settings.controller';
 import { SettingsService } from './settings.service';
 

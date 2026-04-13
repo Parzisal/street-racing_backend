@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
-import { Settings } from 'src/entities/settings.entity';
+import { Settings } from '@entities/settings.entity';
 
 @Injectable()
 export class SettingsRepository extends Repository<Settings> {
