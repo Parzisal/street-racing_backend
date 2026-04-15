@@ -20,7 +20,8 @@
       "@repositories/*": ["src/repositories/*"],
       "@modules/*": ["src/modules/*"],
       "@seed/*": ["src/seed/*"],
-      "@types/*": ["src/types/*"]
+      "@types/*": ["src/types/*"],
+      "@utils/*": ["src/utils/*"]
     },
     "incremental": true,
     "skipLibCheck": true,

@@ -12,7 +12,12 @@ import {
 } from '@nestjs/common';
 import { ProfilesService } from './profiles.service';
 import { UpdateProfileDto } from './update-profile.dto';
+import { BuyCarDto } from './dto/buy-car.dto';
+import { SelectCarDto } from './dto/select-car.dto';
+import { SellCarDto } from './dto/sell-car.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+const PROFILES_FRONTEND_TAG = 'Profiles - Frontend';
 @Controller('profiles')
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
@@ -25,17 +30,54 @@ export class ProfilesController {
     return this.profilesService.createDefault();
   }
 
+  @ApiTags(PROFILES_FRONTEND_TAG)
+  @Get('/me')
+  getMyProfile() {
+    // TODO: replace with profile_id from JWT when auth is implemented.
+    return this.profilesService.getMyProfile(
+      ProfilesController.MOCK_JWT_PROFILE_ID,
+    );
+  }
+
+  @ApiTags(PROFILES_FRONTEND_TAG)
+  @Get('/me/dealership/cars')
+  getDealershipCars() {
+    return this.profilesService.getAvailableDealershipCars(
+      ProfilesController.MOCK_JWT_PROFILE_ID,
+    );
+  }
+
+  @ApiTags(PROFILES_FRONTEND_TAG)
+  @Post('/me/dealership/buy')
+  buyDealershipCar(@Body() dto: BuyCarDto) {
+    return this.profilesService.buyDealershipCar(
+      ProfilesController.MOCK_JWT_PROFILE_ID,
+      dto.carId,
+    );
+  }
+
+  @ApiTags(PROFILES_FRONTEND_TAG)
+  @Patch('/me/garage/selected-car')
+  selectCurrentCar(@Body() dto: SelectCarDto) {
+    return this.profilesService.selectCurrentCar(
+      ProfilesController.MOCK_JWT_PROFILE_ID,
+      dto.profileCarId,
+    );
+  }
+
+  @ApiTags(PROFILES_FRONTEND_TAG)
+  @Post('/me/garage/sell')
+  sellGarageCar(@Body() dto: SellCarDto) {
+    return this.profilesService.sellGarageCar(
+      ProfilesController.MOCK_JWT_PROFILE_ID,
+      dto.profileCarId,
+    );
+  }
+
+  // Internal controllers
   @Get()
   findAll() {
     return this.profilesService.findAll();
-  }
-
-  @Get('/me')
-  getFrontendProfile() {
-    // TODO: replace with profile_id from JWT when auth is implemented.
-    return this.profilesService.getFrontendProfile(
-      ProfilesController.MOCK_JWT_PROFILE_ID,
-    );
   }
 
   @Get(':id')
